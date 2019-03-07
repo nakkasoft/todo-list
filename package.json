@@ -18,7 +18,7 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "homepage": "http://nakkasoft.github.io/hello-react",
+  "homepage": "http://nakkasoft.github.io/todo-list",
   "browserslist": [
     ">0.2%",
     "not dead",

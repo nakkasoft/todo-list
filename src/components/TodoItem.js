@@ -8,8 +8,6 @@ class TodoItem extends Component {
 
     render() {
         const {text, checked, id, color, onToggle, onRemove} = this.props;
-        console.log(text);
-
         return (
             <div className="todo-item" onClick={() => onToggle(id)}>
                 <div className="remove" onClick={(e) => {

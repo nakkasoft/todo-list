@@ -8,13 +8,16 @@ const colors = ['#343a40', '#f03e3e', '#12b886', '#228ae6'];
 
 class App extends Component {
 
-  id = 0 // 이미 0,1,2 가 존재하므로 3으로 설정
+  id = 0;
 
   state = {
     input: '',
     color: '#343a40',
     todos: [
     ]
+  }
+  componentDidMount(){
+    this.loadTodosFromLocalstorage();
   }
 
   handleChange = (e) => {
@@ -26,16 +29,21 @@ class App extends Component {
   handleCreate = () => {
     const {input, todos, color} = this.state;
     if(input !== ""){
+      const tmptodo = todos.concat({
+        id: this.id++,
+        text: input,
+        color: color,
+        checked: false
+      })
+
       this.setState({
         input: '', // 인풋 비우고
         // concat 을 사용하여 배열에 추가
-        todos: todos.concat({
-          id: this.id++,
-          text: input,
-          color: color,
-          checked: false
-        })
+        todos: tmptodo
       });
+
+      this.saveTodosToLocalstorage(tmptodo);      
+      //this.loadTodosFromLocalstorage();
     }
   }
 
@@ -64,19 +72,38 @@ class App extends Component {
     this.setState({
       todos: nextTodos
     });
+
+    this.saveTodosToLocalstorage(nextTodos);
   }
 
   handleRemove = (id) => {
     const {todos} = this.state;
+    const tmptodo = todos.filter(todo => todo.id !== id);
     this.setState({
-      todos: todos.filter(todo => todo.id !== id)
+      todos: tmptodo
     });
+  
+    this.saveTodosToLocalstorage(tmptodo);
   }
 
   handleSelectColor = (color) => {
     this.setState({
       color
     })
+  }
+
+  saveTodosToLocalstorage = (todos) => {
+    localStorage.setItem('todolist', JSON.stringify(todos));
+  }
+
+  loadTodosFromLocalstorage = () => {
+    const todolist = JSON.parse(localStorage.getItem('todolist'));
+    console.log(todolist);
+    if(todolist !== null){
+      this.setState({
+        todos: todolist
+      });
+    }
   }
 
   render() {
