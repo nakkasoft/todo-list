@@ -22,7 +22,7 @@ class App extends Component {
 
   handleChange = (e) => {
     this.setState({
-      input: e.target.value // input 의 다음 바뀔 값
+      input: e.target.value // input 의 다음 바뀔 값.
     });
   }
 
