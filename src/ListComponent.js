@@ -5,7 +5,7 @@ const ListComponent = ({form, palette, children}) => {
     return(
         <main className="list-component">
             <div className="title">
-                오늘 할 일
+                To Do List
             </div>
             <section className="palette-wrapper">
                 {palette}

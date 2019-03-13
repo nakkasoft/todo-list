@@ -3,8 +3,18 @@ import ListComponent from './ListComponent';
 import Form from './components/Form';
 import TodoItemList from './components/TodoItemList';
 import Palette from './components/Palette';
+import firebase from 'firebase';
 
 const colors = ['#343a40', '#f03e3e', '#12b886', '#228ae6'];
+
+const config = {
+  apiKey: "AIzaSyDHO5e_paBM4vUHzvpm402nmZioUZ49cfA",
+  authDomain: "todo-list-e3734.firebaseapp.com",
+  databaseURL: "https://todo-list-e3734.firebaseio.com",
+  projectId: "todo-list-e3734",
+  storageBucket: "todo-list-e3734.appspot.com",
+  messagingSenderId: "120737067435"
+};
 
 class App extends Component {
 
@@ -16,13 +26,15 @@ class App extends Component {
     todos: [
     ]
   }
+
   componentDidMount(){
+    firebase.initializeApp(config);
     this.loadTodosFromLocalstorage();
   }
 
   handleChange = (e) => {
     this.setState({
-      input: e.target.value // input 의 다음 바뀔 값..
+      input: e.target.value // input 의 다음 바뀔 값
     });
   }
 
@@ -92,18 +104,28 @@ class App extends Component {
     })
   }
 
-  saveTodosToLocalstorage = (todos) => {
-    localStorage.setItem('todolist', JSON.stringify(todos));
+  saveTodosToLocalstorage = (todolist) => {
+    //localStorage.setItem('todolist', JSON.stringify(todolist));
+    firebase.database().ref().update({
+      todos: todolist
+    });
   }
 
-  loadTodosFromLocalstorage = () => {
-    const todolist = JSON.parse(localStorage.getItem('todolist'));
-    console.log(todolist);
+  setTodosState = (todolist) => {
     if(todolist !== null){
       this.setState({
         todos: todolist
       });
     }
+  }
+
+  loadTodosFromLocalstorage = () => {
+    firebase.database().ref('/todos').once('value').then((snapshot) => {
+      var todolist = snapshot.val();   //Data is in JSON format.
+      //console.log(todolist);
+      this.setTodosState(todolist);
+    });
+    //const todolist = JSON.parse(localStorage.getItem('todolist'));
   }
 
   render() {
@@ -118,6 +140,7 @@ class App extends Component {
     } = this;
 
     return (
+
       <ListComponent form={(
         <Form
           value={input}
