@@ -18,6 +18,7 @@ const config = {
 
 class App extends Component {
 
+  lastId = 0;
   id = 0;
 
   state = {
@@ -41,12 +42,13 @@ class App extends Component {
   handleCreate = () => {
     const {input, todos, color} = this.state;
     if(input !== ""){
-      const tmptodo = todos.concat({
-        id: this.id++,
+      var tmptodo = [];
+      tmptodo = tmptodo.concat({
+        id: this.lastId++,
         text: input,
         color: color,
         checked: false
-      })
+      },...todos)
 
       this.setState({
         input: '', // 인풋 비우고
@@ -73,19 +75,31 @@ class App extends Component {
     const index = todos.findIndex(todo => todo.id === id);
     const selected = todos[index]; // 선택한 객체
 
-    const nextTodos = [...todos]; // 배열을 복사
+    if(selected.checked == true) return; // Checked 상태면 아무동작 안함. Spec.
+
+    const tmptodo = todos.filter(todo => todo.id !== id);
+
+    //const nextTodos = [...todos]; // 배열을 복사
 
     // 기존의 값들을 복사하고, checked 값을 덮어쓰기
+/*
     nextTodos[index] = { 
       ...selected, 
       checked: !selected.checked
     };
+*/
+    const tmptodo2 = tmptodo.concat({
+      id: selected.id,
+      text: selected.text,
+      color: selected.color,
+      checked: true
+    })
 
     this.setState({
-      todos: nextTodos
+      todos: tmptodo2
     });
 
-    this.saveTodosToLocalstorage(nextTodos);
+    this.saveTodosToLocalstorage(tmptodo2);
   }
 
   handleRemove = (id) => {
@@ -109,6 +123,9 @@ class App extends Component {
     firebase.database().ref().update({
       todos: todolist
     });
+    firebase.database().ref().update({
+      lastId: this.lastId
+    });
   }
 
   setTodosState = (todolist) => {
@@ -121,10 +138,15 @@ class App extends Component {
 
   loadTodosFromLocalstorage = () => {
     firebase.database().ref('/todos').once('value').then((snapshot) => {
-      var todolist = snapshot.val();   //Data is in JSON format.
+      var todolist = snapshot.val();
       //console.log(todolist);
       this.setTodosState(todolist);
     });
+
+    firebase.database().ref('/lastId').once('value').then((snapshot) => {
+      this.lastId = snapshot.val();
+    });
+
     //const todolist = JSON.parse(localStorage.getItem('todolist'));
   }
 
